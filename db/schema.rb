@@ -12,9 +12,21 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 20_230_216_091_933) do
+ActiveRecord::Schema[7.0].define(version: 20_230_418_180_310) do
   # These are extensions that must be enabled in order to support this database
   enable_extension 'plpgsql'
+
+  create_table 'orders', force: :cascade do |t|
+    t.bigint 'warehouse_id', null: false
+    t.bigint 'product_id', null: false
+    t.bigint 'stock_id', null: false
+    t.string 'status'
+    t.datetime 'created_at', null: false
+    t.datetime 'updated_at', null: false
+    t.index ['product_id'], name: 'index_orders_on_product_id'
+    t.index ['stock_id'], name: 'index_orders_on_stock_id'
+    t.index ['warehouse_id'], name: 'index_orders_on_warehouse_id'
+  end
 
   create_table 'products', force: :cascade do |t|
     t.string 'code'
@@ -39,6 +51,9 @@ ActiveRecord::Schema[7.0].define(version: 20_230_216_091_933) do
     t.datetime 'updated_at', null: false
   end
 
+  add_foreign_key 'orders', 'products'
+  add_foreign_key 'orders', 'stocks'
+  add_foreign_key 'orders', 'warehouses'
   add_foreign_key 'stocks', 'products'
   add_foreign_key 'stocks', 'warehouses'
 end
