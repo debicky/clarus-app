@@ -1,5 +1,7 @@
+# frozen_string_literal: true
+
 class WarehousesController < ApplicationController
-  before_action :set_warehouse, only: %i[ show update destroy ]
+  before_action :set_warehouse, only: %i[show update destroy]
 
   # GET /warehouses
   def index
@@ -39,13 +41,14 @@ class WarehousesController < ApplicationController
   end
 
   private
-    # Use callbacks to share common setup or constraints between actions.
-    def set_warehouse
-      @warehouse = Warehouse.find(params[:id])
-    end
 
-    # Only allow a list of trusted parameters through.
-    def warehouse_params
-      params.require(:warehouse).permit(:code)
-    end
+  # Use callbacks to share common setup or constraints between actions.
+  def set_warehouse
+    @warehouse = Warehouse.find(params[:id])
+  end
+
+  # Only allow a list of trusted parameters through.
+  def warehouse_params
+    params.require(:warehouse).permit(:code)
+  end
 end
