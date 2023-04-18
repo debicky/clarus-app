@@ -61,3 +61,4 @@ We want it to be a simple REST API, it was decided with the FrontEnd team that w
 * Any improvements over standard scaffolded rails API that you see fit
 * No race conditions
 # clarus-app
+# clarus-app
