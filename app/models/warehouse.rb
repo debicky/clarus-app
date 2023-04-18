@@ -2,4 +2,6 @@
 
 class Warehouse < ApplicationRecord
   has_many :stocks
+
+  validates :code, presence: true
 end
