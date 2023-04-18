@@ -1,35 +1,44 @@
 # frozen_string_literal: true
 
-# spec/controllers/stocks_controller_spec.rb
-
 require 'rails_helper'
 
 RSpec.describe StocksController, type: :controller do
   describe 'GET #index' do
-    let!(:stock1) { create(:stock) }
-    let!(:stock2) { create(:stock) }
+    subject(:get_index) { get :index }
+
+    let(:stocks) { create_list(:stock, 2) }
+
+    before(:each) do
+      stocks
+    end
 
     it 'returns a success response' do
-      get :index
+      get_index
       expect(response).to be_successful
     end
 
     it 'returns all stocks' do
-      get :index
-      expect(controller.instance_variable_get(:@stocks)).to eq([stock1, stock2])
+      get_index
+      expect(controller.instance_variable_get(:@stocks)).to match_array(stocks)
     end
   end
 
   describe 'GET #show' do
-    let!(:stock) { create(:stock) }
+    subject(:get_show) { get :show, params: { id: stock.id } }
+
+    let(:stock) { create(:stock) }
+
+    before(:each) do
+      stock
+    end
 
     it 'returns a success response' do
-      get :show, params: { id: stock.to_param }
+      get_show
       expect(response).to be_successful
     end
 
     it 'returns the correct stock' do
-      get :show, params: { id: stock.to_param }
+      get_show
       expect(controller.instance_variable_get(:@stock)).to eq(stock)
     end
   end
