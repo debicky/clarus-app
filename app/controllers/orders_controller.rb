@@ -37,7 +37,7 @@ class OrdersController < ApplicationController
   end
 
   def update_stock(stock)
-    stock.update!(quantity: stock.quantity - 1)
+    stock.update!(quantity: (stock.quantity - 1).to_i)
   end
 
   def process_order(warehouse, product, stock)

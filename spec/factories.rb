@@ -11,7 +11,7 @@ FactoryBot.define do
   end
 
   factory :stock do
-    quantity { 123 }
+    quantity { 1 }
     association :warehouse
     association :product
   end
