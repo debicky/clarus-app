@@ -15,4 +15,11 @@ FactoryBot.define do
     association :warehouse
     association :product
   end
+
+  factory :order do
+    association :warehouse
+    association :product
+    association :stock
+    status { 'new' }
+  end
 end
