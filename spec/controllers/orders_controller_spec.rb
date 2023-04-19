@@ -3,16 +3,16 @@
 require 'rails_helper'
 
 RSpec.describe OrdersController, type: :controller do
+  let(:warehouse) { FactoryBot.create(:warehouse) }
+  let(:product) { FactoryBot.create(:product) }
+  let(:stock) { FactoryBot.create(:stock, warehouse: warehouse, product: product, quantity: 1) }
+
+  before(:each) do
+    stock
+  end
+
   describe 'POST #create' do
     subject(:post_create) { post :create, params: { warehouse_id: warehouse.id, product_id: product.id } }
-
-    let(:warehouse) { FactoryBot.create(:warehouse) }
-    let(:product) { FactoryBot.create(:product) }
-    let(:stock) { FactoryBot.create(:stock, warehouse: warehouse, product: product, quantity: 1) }
-
-    before(:each) do
-      stock
-    end
 
     context 'when there is available stock for the selected warehouse and product' do
       it 'creates a new order' do

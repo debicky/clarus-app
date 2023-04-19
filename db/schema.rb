@@ -20,7 +20,7 @@ ActiveRecord::Schema[7.0].define(version: 20_230_418_180_310) do
     t.bigint 'warehouse_id', null: false
     t.bigint 'product_id', null: false
     t.bigint 'stock_id', null: false
-    t.string 'status'
+    t.string 'status', default: 'new', null: false
     t.datetime 'created_at', null: false
     t.datetime 'updated_at', null: false
     t.index ['product_id'], name: 'index_orders_on_product_id'
