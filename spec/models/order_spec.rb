@@ -6,7 +6,7 @@ RSpec.describe Order, type: :model do
   let(:warehouse) { create(:warehouse) }
   let(:product) { create(:product) }
   let(:stock) { create(:stock, warehouse: warehouse, product: product, quantity: 1) }
-  let(:order) { build(:order, warehouse: warehouse, product: product, stock: stock) }
+  let(:order) { create(:order, warehouse: warehouse, product: product, stock: stock) }
 
   describe 'associations' do
     it 'belongs to warehouse' do

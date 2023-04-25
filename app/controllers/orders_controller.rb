@@ -4,18 +4,15 @@ class OrdersController < ApplicationController
   def create
     product = find_product
     warehouse = find_warehouse
+    stock = find_stock(product, warehouse)
 
-    ActiveRecord::Base.transaction do
-      stock = find_stock(product, warehouse)
-
-      unless stock
-        render json: { error: 'No stock available for the selected product and warehouse' },
-               status: :unprocessable_entity
-        return
-      end
-
-      process_order(warehouse, product, stock)
+    unless stock
+      render json: { error: 'No stock available for the selected product and warehouse' },
+             status: :unprocessable_entity
+      return
     end
+
+    process_order(warehouse, product, stock)
   end
 
   private
@@ -41,12 +38,13 @@ class OrdersController < ApplicationController
   end
 
   def process_order(warehouse, product, stock)
-    order = create_order(warehouse, product, stock)
-    if order.save!
-      update_stock(stock)
+    ActiveRecord::Base.transaction do
+      order = create_order(warehouse, product, stock)
+
+      update_stock(stock) if order.save!
       render json: order, status: :created
-    else
-      render json: order.errors, status: :unprocessable_entity
     end
+  rescue ActiveRecord::RecordInvalid
+    render json: order.errors, status: :unprocessable_entity
   end
 end
