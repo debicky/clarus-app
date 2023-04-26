@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # spec/controllers/stocks_controller_spec.rb
 require 'rails_helper'
 
@@ -37,9 +39,8 @@ RSpec.describe StocksController, type: :controller do
   describe 'POST #create' do
     let(:valid_params) { { warehouse_id: warehouse.id, product_id: product.id, quantity: 3 } }
     let(:invalid_params) { { warehouse_id: warehouse.id, product_id: product.id, quantity: -3 } }
-    
-    subject(:post_create) { post :create, params: params  }
-    
+
+    subject(:post_create) { post :create, params: params }
 
     context 'when stock creation is successful' do
       let(:params) { valid_params }
@@ -74,6 +75,57 @@ RSpec.describe StocksController, type: :controller do
       it 'returns a 422 Unprocessable Entity status' do
         post_create
         expect(response).to have_http_status(:unprocessable_entity)
+      end
+    end
+
+    context 'when warehouse_id is not present or invalid' do
+      let(:params) { valid_params.merge(warehouse_id: -1) }
+
+      it 'does not change the stock quantity' do
+        expect { post_create }.not_to change { stock.reload.quantity }
+      end
+
+      it 'returns a 422 Unprocessable Entity status' do
+        post_create
+        expect(response).to have_http_status(:unprocessable_entity)
+      end
+    end
+
+    context 'when product_id is not present or invalid' do
+      let(:params) { valid_params.merge(product_id: -1) }
+
+      it 'does not change the stock quantity' do
+        expect { post_create }.not_to change { stock.reload.quantity }
+      end
+
+      it 'returns a 422 Unprocessable Entity status' do
+        post_create
+        expect(response).to have_http_status(:unprocessable_entity)
+      end
+    end
+
+    context 'when there is no stock record for the given warehouse and product' do
+      let(:new_product) { create(:product) }
+      let(:params) { { warehouse_id: warehouse.id, product_id: new_product.id, quantity: 5 } }
+
+      it 'creates a new stock record' do
+        expect { post_create }.to change { Stock.count }.by(1)
+      end
+
+      it 'sets the quantity of the new stock record to 5' do
+        post_create
+        new_stock = Stock.find_by(warehouse: warehouse, product: new_product)
+        expect(new_stock.quantity).to eq(5)
+      end
+
+      it 'returns a success message' do
+        post_create
+        expect(JSON.parse(response.body)['message']).to eq('Stock created successfully.')
+      end
+
+      it 'returns a 201 Created status' do
+        post_create
+        expect(response).to have_http_status(:created)
       end
     end
   end

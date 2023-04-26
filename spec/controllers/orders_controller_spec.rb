@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+# spec/controllers/orders_controller_spec.rb
 require 'rails_helper'
 
 RSpec.describe OrdersController, type: :controller do
@@ -46,6 +47,59 @@ RSpec.describe OrdersController, type: :controller do
       it 'returns an error message' do
         post_create
         expect(JSON.parse(response.body)['error']).to eq('No stock available for the selected product and warehouse')
+      end
+    end
+
+    context 'when product_id is invalid' do
+      let(:invalid_product_id) { Product.maximum(:id).to_i + 1 }
+      subject(:post_create_invalid_product) do
+        post :create, params: { warehouse_id: warehouse.id, product_id: invalid_product_id }
+      end
+
+      it 'returns a not found status' do
+        post_create_invalid_product
+        expect(response).to have_http_status(:not_found)
+      end
+
+      it 'returns an error message' do
+        post_create_invalid_product
+        expect(JSON.parse(response.body)['error']).to include('Couldn\'t find Product')
+      end
+    end
+
+    context 'when warehouse_id is invalid' do
+      let(:invalid_warehouse_id) { Warehouse.maximum(:id).to_i + 1 }
+      subject(:post_create_invalid_warehouse) do
+        post :create, params: { warehouse_id: invalid_warehouse_id, product_id: product.id }
+      end
+
+      it 'returns a not found status' do
+        post_create_invalid_warehouse
+        expect(response).to have_http_status(:not_found)
+      end
+
+      it 'returns an error message' do
+        post_create_invalid_warehouse
+        expect(JSON.parse(response.body)['error']).to include('Couldn\'t find Warehouse')
+      end
+    end
+
+    context 'when saving the order fails due to validation errors' do
+      let(:invalid_order) { FactoryBot.build(:order, warehouse: nil, product: nil, stock: nil, status: nil) }
+
+      before do
+        invalid_order.validate
+        allow_any_instance_of(Order).to receive(:save!).and_raise(ActiveRecord::RecordInvalid.new(Order.new))
+      end
+
+      it 'returns an unprocessable entity status' do
+        post_create
+        expect(response).to have_http_status(:unprocessable_entity)
+      end
+
+      it 'does not create a new order' do
+        post_create
+        expect(Order.count).to eq(0)
       end
     end
   end

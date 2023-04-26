@@ -3,11 +3,11 @@
 require 'rails_helper'
 
 RSpec.describe DispatchesController, type: :controller do
-  let!(:warehouse) { create(:warehouse) }
-  let!(:product) { create(:product) }
-  let!(:stock) { create(:stock, warehouse: warehouse, product: product, quantity: 5) }
-  let!(:new_order) { create(:order, stock: stock, status: 'new') }
-  let!(:dispatched_order) { create(:order, stock: stock, status: 'dispatched') }
+  let(:warehouse) { create(:warehouse) }
+  let(:product) { create(:product) }
+  let(:stock) { create(:stock, warehouse: warehouse, product: product, quantity: 5) }
+  let(:new_order) { create(:order, stock: stock, status: 'new') }
+  let(:dispatched_order) { create(:order, stock: stock, status: 'dispatched') }
 
   describe 'POST #create' do
     context 'when order status is new' do

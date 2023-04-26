@@ -43,6 +43,28 @@ RSpec.describe Order, type: :model do
       expect(order.valid?).to eq(false)
       expect(order.errors[:stock]).to include('must exist')
     end
+
+    it 'validates presence of status' do
+      order.status = nil
+      expect(order.valid?).to eq(false)
+      expect(order.errors[:status]).to include("can't be blank")
+    end
+
+    it 'validates inclusion of status in allowed values' do
+      order.status = 'invalid_status'
+      expect(order.valid?).to eq(false)
+      expect(order.errors[:status]).to include('is not included in the list')
+    end
+
+    it 'is valid with status "new"' do
+      order.status = 'new'
+      expect(order.valid?).to eq(true)
+    end
+
+    it 'is valid with status "dispatched"' do
+      order.status = 'dispatched'
+      expect(order.valid?).to eq(true)
+    end
   end
 
   describe 'default attributes' do
