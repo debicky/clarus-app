@@ -1,39 +1,51 @@
+# frozen_string_literal: true
+
 require 'swagger_helper'
 
-RSpec.describe 'Orders API' do
-  path '/orders' do
-    post 'Create Order' do
-      tags 'Orders'
+RSpec.describe 'Dispatches API', type: :request do
+  path '/orders/{order_id}/dispatches' do
+    let(:order) { create(:order) }
+    let(:order_id) { order.id }
+
+    post 'Create dispatch for order' do
+      tags 'Dispatches'
       consumes 'application/json'
       produces 'application/json'
-      parameter name: :order, in: :body, schema: {
-        type: :object,
-        properties: {
-          product_id: { type: :integer },
-          warehouse_id: { type: :integer }
-        },
-        required: ['product_id', 'warehouse_id']
-      }
+      parameter name: :order_id, in: :path, type: :integer
 
-      response '201', 'Order created' do
-        let(:product) { create(:product) }
-        let(:warehouse) { create(:warehouse) }
-        let!(:stock) { create(:stock, product: product, warehouse: warehouse, quantity: 10) }
-        let(:order) { { product_id: product.id, warehouse_id: warehouse.id } }
-        run_test!
+      response '200', 'Order dispatched and stock removed from the system.' do
+        before { allow(OrderDispatcher).to receive(:new).and_return(double(call: true)) }
+
+        run_test! do |response|
+          expect(JSON.parse(response.body)).to eq('message' => 'Order dispatched and stock removed from the system.')
+        end
       end
 
-      response '404', 'Product or Warehouse not found' do
-        let(:order) { { product_id: -1, warehouse_id: -1 } }
-        run_test!
+      response '422', 'Cannot dispatch an already dispatched order.' do
+        let!(:dispatched_order) { create(:order, :dispatched) }
+        let(:order_id) { dispatched_order.id }
+
+        run_test! do |response|
+          expect(JSON.parse(response.body)).to eq('errors' => 'Cannot dispatch an already dispatched order.')
+        end
       end
 
-      response '422', 'No stock available for the selected product and warehouse' do
-        let(:product) { create(:product) }
-        let(:warehouse) { create(:warehouse) }
-        let!(:stock) { create(:stock, product: product, warehouse: warehouse, quantity: 0) }
-        let(:order) { { product_id: product.id, warehouse_id: warehouse.id } }
-        run_test!
+      response '422', 'Invalid record' do
+        before do
+          allow_any_instance_of(OrderDispatcher).to receive(:call).and_raise(ActiveRecord::RecordInvalid.new(order))
+        end
+
+        run_test! do |response|
+          expect(response.body).to eq(order.errors.to_json)
+        end
+      end
+
+      response '404', 'Order not found' do
+        let(:order_id) { -1 }
+
+        run_test! do |response|
+          expect(JSON.parse(response.body)).to eq('error' => 'Order not found')
+        end
       end
     end
   end

@@ -43,7 +43,8 @@ class ProductsController < ApplicationController
   private
 
   def set_product
-    @product = Product.find(params[:id])
+    @product = Product.find_by_id(params[:id])
+    render json: { error: 'Product not found' }, status: :not_found unless @product
   end
 
   def product_params
