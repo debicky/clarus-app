@@ -10,7 +10,8 @@ class StockBalancesController < ApplicationController
   private
 
   def find_stock_balance
-    @stock_balance = StockBalance.find(params[:id])
+    @stock_balance = StockBalance.find_by_id(params[:id])
+    render json: { error: 'Stock not found' }, status: :not_found unless @stock_balance
   end
 
   def stock_balance_data
