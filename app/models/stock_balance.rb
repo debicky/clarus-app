@@ -3,13 +3,13 @@
 class StockBalance < ApplicationRecord
   belongs_to :warehouse
   belongs_to :product
-  belongs_to :order
+  belongs_to :stock
 
   def available_stocks
-    Stock.with_product_and_warehouse(product, warehouse).sum(:quantity)
+    stock.quantity
   end
 
   def ordered_stocks
-    Order.joins(:stock).where(stocks: { warehouse: warehouse, product: product }).only_dispatched.count
+    stock.orders.only_dispatched.count
   end
 end

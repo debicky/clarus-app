@@ -38,11 +38,11 @@ ActiveRecord::Schema[7.0].define(version: 20_230_427_170_838) do
   create_table 'stock_balances', force: :cascade do |t|
     t.bigint 'warehouse_id', null: false
     t.bigint 'product_id', null: false
-    t.bigint 'order_id', null: false
+    t.bigint 'stock_id', null: false
     t.datetime 'created_at', null: false
     t.datetime 'updated_at', null: false
-    t.index ['order_id'], name: 'index_stock_balances_on_order_id'
     t.index ['product_id'], name: 'index_stock_balances_on_product_id'
+    t.index ['stock_id'], name: 'index_stock_balances_on_stock_id'
     t.index ['warehouse_id'], name: 'index_stock_balances_on_warehouse_id'
   end
 
@@ -65,8 +65,8 @@ ActiveRecord::Schema[7.0].define(version: 20_230_427_170_838) do
   add_foreign_key 'orders', 'products'
   add_foreign_key 'orders', 'stocks'
   add_foreign_key 'orders', 'warehouses'
-  add_foreign_key 'stock_balances', 'orders'
   add_foreign_key 'stock_balances', 'products'
+  add_foreign_key 'stock_balances', 'stocks'
   add_foreign_key 'stock_balances', 'warehouses'
   add_foreign_key 'stocks', 'products'
   add_foreign_key 'stocks', 'warehouses'

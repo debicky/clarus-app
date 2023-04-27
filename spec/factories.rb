@@ -26,6 +26,6 @@ FactoryBot.define do
   factory :stock_balance do
     association :warehouse
     association :product
-    association :order
+    association :stock
   end
 end
