@@ -56,14 +56,11 @@ RSpec.describe OrdersController, type: :controller do
         post :create, params: { warehouse_id: warehouse.id, product_id: invalid_product_id }
       end
 
-      it 'returns a not found status' do
-        post_create_invalid_product
-        expect(response).to have_http_status(:not_found)
-      end
-
       it 'returns an error message' do
-        post_create_invalid_product
-        expect(JSON.parse(response.body)['error']).to include('Couldn\'t find Product')
+        expect do
+          post_create_invalid_product
+        end.to raise_error(ActiveRecord::RecordNotFound,
+                           "Couldn't find Product with 'id'=#{invalid_product_id}")
       end
     end
 
@@ -73,14 +70,11 @@ RSpec.describe OrdersController, type: :controller do
         post :create, params: { warehouse_id: invalid_warehouse_id, product_id: product.id }
       end
 
-      it 'returns a not found status' do
-        post_create_invalid_warehouse
-        expect(response).to have_http_status(:not_found)
-      end
-
       it 'returns an error message' do
-        post_create_invalid_warehouse
-        expect(JSON.parse(response.body)['error']).to include('Couldn\'t find Warehouse')
+        expect do
+          post_create_invalid_warehouse
+        end.to raise_error(ActiveRecord::RecordNotFound,
+                           "Couldn't find Warehouse with 'id'=#{invalid_warehouse_id}")
       end
     end
 

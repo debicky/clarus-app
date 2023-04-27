@@ -25,9 +25,13 @@ class StocksController < ApplicationController
       render json: { errors: 'Invalid warehouse or product ID.' }, status: :unprocessable_entity
     else
       stock = Stock.new(warehouse: warehouse, product: product, quantity: stock_params[:quantity])
-
+      # find or create by i wtedy lock
+      # return jak nie ma stocku
+      # if create_stock(stock)
       if stock.quantity.positive? && create_stock(stock)
         render json: { message: 'Stock created successfully.' }, status: :created
+
+        ### stockBalance +
       else
         render json: { errors: 'Error creating the stock.' }, status: :unprocessable_entity
       end
@@ -67,6 +71,8 @@ class StocksController < ApplicationController
     end
 
     true
+    # moze zwracac walidacje z modelu?
+    # if user . save to zwracaj json z succes, a na else user.errors
   rescue ActiveRecord::RecordInvalid
     false
   end

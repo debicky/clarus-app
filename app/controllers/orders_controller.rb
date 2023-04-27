@@ -2,60 +2,52 @@
 
 # app/controllers/orders_controller.rb
 class OrdersController < ApplicationController
+  before_action :find_product, only: :create
+  before_action :find_warehouse, only: :create
+
   def create
-    product = find_product
-    warehouse = find_warehouse
+    stock = find_stock
 
-    if product.nil? || warehouse.nil?
-      render json: { error: 'Invalid product or warehouse ID.' }, status: :unprocessable_entity
-      return
+    if stock
+      create_order(stock)
+    else
+      no_stock_available
     end
-
-    stock = find_stock(product, warehouse)
-
-    unless stock
-      render json: { error: 'No stock available for the selected product and warehouse' },
-             status: :unprocessable_entity
-      return
-    end
-
-    order = process_order!(warehouse, product, stock)
-    render json: order, status: :created
   rescue ActiveRecord::RecordNotFound => e
-    render json: { error: e.message }, status: :not_found
+    render_error(e.message, :not_found)
   rescue ActiveRecord::RecordInvalid => e
-    render json: e.record.errors, status: :unprocessable_entity
+    render_error(e.message, :unprocessable_entity)
   end
 
   private
 
   def find_product
-    Product.find(params[:product_id])
+    @product = Product.find(params[:product_id])
   end
 
   def find_warehouse
-    Warehouse.find(params[:warehouse_id])
+    @warehouse = Warehouse.find(params[:warehouse_id])
   end
 
-  def find_stock(product, warehouse)
-    Stock.where(product: product, warehouse: warehouse).where('quantity > 0').lock(true).first
+  def find_stock
+    Stock.where(product: @product, warehouse: @warehouse).where('quantity > 0').lock(true).first
   end
 
-  def create_order(warehouse, product, stock)
-    Order.new(warehouse: warehouse, product: product, stock: stock, status: 'new')
+  def create_order(stock)
+    order = OrderCreator.new(
+      warehouse: @warehouse,
+      product: @product,
+      stock: stock
+    ).call
+
+    render json: order, status: :created
   end
 
-  def update_stock!(stock)
-    stock.update!(quantity: stock.quantity - 1)
+  def no_stock_available
+    render_error('No stock available for the selected product and warehouse', :unprocessable_entity)
   end
 
-  def process_order!(warehouse, product, stock)
-    ActiveRecord::Base.transaction do
-      order = create_order(warehouse, product, stock)
-
-      update_stock!(stock) if order.save!
-
-      order
-    end
+  def render_error(message, status)
+    render json: { error: message }, status: status
   end
 end

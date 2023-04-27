@@ -14,10 +14,19 @@ class DispatchesController < ApplicationController
 
   private
 
+  # SERVICES/fasady i robie tam PORO
+  # new i jedna metode do przeprocesowania
+  # dwie publiczne metody new i run
+
   def find_order
+    # dodac locka
+    # przy new tylko nie moge??????
+    #
     Order.find(params[:order_id])
   end
 
+  # usunac wykrzyknik bo nie rzuca bledem tylko zwraca json error
+  # i moze zwrocic errory z modelu
   def dispatch_order!(order)
     ActiveRecord::Base.transaction do
       order.update!(status: 'dispatched')
