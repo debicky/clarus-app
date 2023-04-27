@@ -57,10 +57,8 @@ RSpec.describe OrdersController, type: :controller do
       end
 
       it 'returns an error message' do
-        expect do
-          post_create_invalid_product
-        end.to raise_error(ActiveRecord::RecordNotFound,
-                           "Couldn't find Product with 'id'=#{invalid_product_id}")
+        post_create_invalid_product
+        expect(JSON.parse(response.body)['error']).to eq('Product not found')
       end
     end
 

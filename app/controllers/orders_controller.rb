@@ -15,11 +15,13 @@ class OrdersController < ApplicationController
   private
 
   def find_product
-    @product = Product.find(params[:product_id])
+    @product = Product.find_by_id(params[:product_id])
+    render json: { error: 'Product not found' }, status: :not_found unless @product
   end
 
   def find_warehouse
     @warehouse = Warehouse.find(params[:warehouse_id])
+    render json: { error: 'Warehouse  not found' }, status: :not_found unless @warehouse
   end
 
   def find_stock
