@@ -120,4 +120,3 @@ RSpec.describe 'Warehouses API' do
     end
   end
 end
-
