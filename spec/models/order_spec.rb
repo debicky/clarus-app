@@ -73,4 +73,16 @@ RSpec.describe Order, type: :model do
       expect(new_order.status).to eq('new')
     end
   end
+
+  describe '#dispatched?' do
+    it 'returns true when the status is "dispatched"' do
+      order.status = 'dispatched'
+      expect(order.dispatched?).to eq(true)
+    end
+
+    it 'returns false when the status is not "dispatched"' do
+      order.status = 'new'
+      expect(order.dispatched?).to eq(false)
+    end
+  end
 end
