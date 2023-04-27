@@ -21,6 +21,10 @@ FactoryBot.define do
     association :product
     association :stock
     status { 'new' }
+
+    trait :dispatched do
+      status { 'dispatched' }
+    end
   end
 
   factory :stock_balance do

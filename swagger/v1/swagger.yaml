@@ -1,0 +1,29 @@
+---
+openapi: 3.0.1
+info:
+  title: API V1
+  version: v1
+paths:
+  "/orders/{order_id}/dispatches":
+    post:
+      summary: Create dispatch for order
+      tags:
+      - Dispatches
+      parameters:
+      - name: order_id
+        in: path
+        required: true
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: Order dispatched and stock removed from the system.
+        '422':
+          description: Invalid record
+        '404':
+          description: Order not found
+servers:
+- url: https://{defaultHost}
+  variables:
+    defaultHost:
+      default: www.example.com

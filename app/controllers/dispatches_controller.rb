@@ -11,7 +11,8 @@ class DispatchesController < ApplicationController
   private
 
   def find_order
-    @order = Order.find(params[:order_id])
+    @order = Order.find_by_id(params[:order_id])
+    render json: { error: 'Order not found' }, status: :not_found unless @order
   end
 
   def order_dispatched
