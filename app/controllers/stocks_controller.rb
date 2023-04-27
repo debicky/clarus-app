@@ -32,10 +32,11 @@ class StocksController < ApplicationController
   end
 
   private
+
   def set_stock
     @stock = Stock.find(params[:id])
   end
-  
+
   def stock_params
     params.permit(:quantity, :warehouse_id, :product_id)
   end

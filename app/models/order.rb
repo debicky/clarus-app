@@ -8,6 +8,7 @@ class Order < ApplicationRecord
   before_validation :set_default_status, on: :create
   # rename new to initial to use enum?
   validates :status, presence: true, inclusion: { in: %w[new dispatched] }
+  scope :only_dispatched, -> { where(status: 'dispatched') }
 
   def dispatched?
     status == 'dispatched'

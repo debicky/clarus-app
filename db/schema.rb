@@ -12,7 +12,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 20_230_426_071_700) do
+ActiveRecord::Schema[7.0].define(version: 20_230_427_170_838) do
   # These are extensions that must be enabled in order to support this database
   enable_extension 'plpgsql'
 
@@ -35,6 +35,17 @@ ActiveRecord::Schema[7.0].define(version: 20_230_426_071_700) do
     t.datetime 'updated_at', null: false
   end
 
+  create_table 'stock_balances', force: :cascade do |t|
+    t.bigint 'warehouse_id', null: false
+    t.bigint 'product_id', null: false
+    t.bigint 'order_id', null: false
+    t.datetime 'created_at', null: false
+    t.datetime 'updated_at', null: false
+    t.index ['order_id'], name: 'index_stock_balances_on_order_id'
+    t.index ['product_id'], name: 'index_stock_balances_on_product_id'
+    t.index ['warehouse_id'], name: 'index_stock_balances_on_warehouse_id'
+  end
+
   create_table 'stocks', force: :cascade do |t|
     t.integer 'quantity'
     t.bigint 'warehouse_id', null: false
@@ -54,6 +65,9 @@ ActiveRecord::Schema[7.0].define(version: 20_230_426_071_700) do
   add_foreign_key 'orders', 'products'
   add_foreign_key 'orders', 'stocks'
   add_foreign_key 'orders', 'warehouses'
+  add_foreign_key 'stock_balances', 'orders'
+  add_foreign_key 'stock_balances', 'products'
+  add_foreign_key 'stock_balances', 'warehouses'
   add_foreign_key 'stocks', 'products'
   add_foreign_key 'stocks', 'warehouses'
 end

@@ -22,4 +22,10 @@ FactoryBot.define do
     association :stock
     status { 'new' }
   end
+
+  factory :stock_balance do
+    association :warehouse
+    association :product
+    association :order
+  end
 end

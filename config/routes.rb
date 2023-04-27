@@ -7,4 +7,5 @@ Rails.application.routes.draw do
   resources :orders, only: [:create] do
     resources :dispatches, only: [:create]
   end
+  resources :stock_balances, only: :show
 end

@@ -23,6 +23,7 @@ class StockCreator
       else
         locked_stock.save!
       end
+      # should it update on fly the stockBalance?
     end
 
     true

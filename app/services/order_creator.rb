@@ -21,6 +21,7 @@ class OrderCreator
 
       order
     end
+    # add to stockBalance?
   end
 
   def create_order(warehouse, product, stock)

@@ -19,6 +19,7 @@ class OrderDispatcher
       locked_order.update!(status: 'dispatched')
       update_stock_quantity(locked_stock)
     end
+    # remove from stockBalance?
   end
 
   def update_stock_quantity(stock)
