@@ -50,4 +50,27 @@ RSpec.describe Stock, type: :model do
       expect(stock.errors[:quantity]).to include('must be an integer')
     end
   end
+
+  describe 'scopes' do
+    let!(:stock1) { create(:stock, product: product, warehouse: warehouse, quantity: 10) }
+    let!(:stock2) { create(:stock, product: create(:product), warehouse: warehouse, quantity: 5) }
+    let!(:stock3) { create(:stock, product: product, warehouse: create(:warehouse), quantity: 0) }
+
+    describe 'with_product_and_warehouse' do
+      it 'returns stocks with given product and warehouse' do
+        result = Stock.with_product_and_warehouse(product, warehouse)
+        expect(result.count).to eq(1)
+        expect(result.first).to eq(stock1)
+      end
+    end
+
+    describe 'with_positive_quantity' do
+      it 'returns stocks with quantity greater than 0' do
+        result = Stock.with_positive_quantity
+        expect(result.count).to eq(2)
+        expect(result).to include(stock1, stock2)
+        expect(result).not_to include(stock3)
+      end
+    end
+  end
 end

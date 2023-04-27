@@ -4,19 +4,12 @@
 class OrdersController < ApplicationController
   before_action :find_product, only: :create
   before_action :find_warehouse, only: :create
+  before_action :find_stock, only: :create
 
   def create
-    stock = find_stock
+    return no_stock_available unless @stock
 
-    if stock
-      create_order(stock)
-    else
-      no_stock_available
-    end
-  rescue ActiveRecord::RecordNotFound => e
-    render_error(e.message, :not_found)
-  rescue ActiveRecord::RecordInvalid => e
-    render_error(e.message, :unprocessable_entity)
+    create_order(@stock)
   end
 
   private
@@ -30,7 +23,7 @@ class OrdersController < ApplicationController
   end
 
   def find_stock
-    Stock.where(product: @product, warehouse: @warehouse).where('quantity > 0').lock(true).first
+    @stock = Stock.with_product_and_warehouse(@product, @warehouse).with_positive_quantity.lock(true).first
   end
 
   def create_order(stock)
@@ -41,10 +34,15 @@ class OrdersController < ApplicationController
     ).call
 
     render json: order, status: :created
+  rescue ActiveRecord::RecordNotFound => e
+    render_error(e.message, :not_found)
+  rescue ActiveRecord::RecordInvalid => e
+    render_error(e.message, :unprocessable_entity)
   end
 
   def no_stock_available
-    render_error('No stock available for the selected product and warehouse', :unprocessable_entity)
+    render json: { error: 'No stock available for the selected product and warehouse' },
+           status: :unprocessable_entity
   end
 
   def render_error(message, status)

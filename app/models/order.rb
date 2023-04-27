@@ -5,10 +5,17 @@ class Order < ApplicationRecord
   belongs_to :product
   belongs_to :stock
 
+  before_validation :set_default_status, on: :create
+  # rename new to initial to use enum?
   validates :status, presence: true, inclusion: { in: %w[new dispatched] }
-  # enum / moze state machine?
 
-  # DODAC RSWAG GEMA dla swaggera
-  # obsluga bledow
-  # https://medium.com/@sushildamdhere/how-to-document-rest-apis-with-swagger-and-ruby-on-rails-ae4e13177f5d
+  def dispatched?
+    status == 'dispatched'
+  end
+
+  private
+
+  def set_default_status
+    self.status ||= 'new'
+  end
 end
