@@ -23,12 +23,10 @@ class StockCreator
       else
         locked_stock.save!
       end
-      # should it update on fly the stockBalance?
     end
 
     true
-    # moze zwracac walidacje z modelu?
-    # if user . save to zwracaj json z succes, a na else user.errors
+    # should I return model validation?
   rescue ActiveRecord::RecordInvalid
     false
   end

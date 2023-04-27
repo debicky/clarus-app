@@ -14,6 +14,7 @@ class OrderCreator
   private
 
   def process_order(warehouse, product, stock)
+    # update_counters against race conditions?
     ActiveRecord::Base.transaction do
       order = create_order(warehouse, product, stock)
 
@@ -30,6 +31,5 @@ class OrderCreator
 
   def update_stock!(stock)
     stock.update!(quantity: stock.quantity - 1)
-    # update_conters against race conditions?
   end
 end
