@@ -44,7 +44,8 @@ class WarehousesController < ApplicationController
 
   # Use callbacks to share common setup or constraints between actions.
   def set_warehouse
-    @warehouse = Warehouse.find(params[:id])
+    @warehouse = Warehouse.find_by_id(params[:id])
+    render json: { error: 'Warehouse not found' }, status: :not_found unless @warehouse
   end
 
   # Only allow a list of trusted parameters through.

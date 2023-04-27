@@ -34,7 +34,8 @@ class StocksController < ApplicationController
   private
 
   def set_stock
-    @stock = Stock.find(params[:id])
+    @stock = Stock.find_by_id(params[:id])
+    render json: { error: 'Stock not found' }, status: :not_found unless @stock
   end
 
   def stock_params
