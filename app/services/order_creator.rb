@@ -24,10 +24,7 @@ class OrderCreator
   end
 
   def create_order(warehouse, product, stock)
-    Order.new(warehouse: warehouse, product: product, stock: stock)
-    # before validation ustaw status new
-    # stock.orders.new(warehouse: warehouse, product: product, status: 'new')
-    # current_user zrobie nie ma opcji na jebniecie sie, zeby przekazac zly param albo czegos zapomne
+    stock.orders.new(warehouse: warehouse, product: product)
   end
 
   def update_stock!(stock)

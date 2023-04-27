@@ -3,6 +3,8 @@
 # app/controllers/stocks_controller.rb
 class StocksController < ApplicationController
   before_action :set_stock, only: %i[show update destroy]
+  before_action :find_warehouse, only: [:create]
+  before_action :find_product, only: [:create]
 
   # GET /stocks
   def index
@@ -18,34 +20,22 @@ class StocksController < ApplicationController
 
   # POST /stocks
   def create
-    product = find_product
-    warehouse = find_warehouse
+    return invalid_warehouse_or_product if @warehouse.nil? || @product.nil?
 
-    if warehouse.nil? || product.nil?
-      render json: { errors: 'Invalid warehouse or product ID.' }, status: :unprocessable_entity
+    stock = Stock.new(warehouse: @warehouse, product: @product, quantity: stock_params[:quantity])
+
+    if stock.valid? && StockCreator.new(stock: stock).call
+      render json: { message: 'Stock created successfully.' }, status: :created
     else
-      stock = Stock.new(warehouse: warehouse, product: product, quantity: stock_params[:quantity])
-      # find or create by i wtedy lock
-      # return jak nie ma stocku
-      # if create_stock(stock)
-      if stock.quantity.positive? && create_stock(stock)
-        render json: { message: 'Stock created successfully.' }, status: :created
-
-        ### stockBalance +
-      else
-        render json: { errors: 'Error creating the stock.' }, status: :unprocessable_entity
-      end
+      render json: { errors: 'Error creating the stock.' }, status: :unprocessable_entity
     end
   end
 
   private
-
-  # Use callbacks to share common setup or constraints between actions.
   def set_stock
     @stock = Stock.find(params[:id])
   end
-
-  # Only allow a list of trusted parameters through.
+  
   def stock_params
     params.permit(:quantity, :warehouse_id, :product_id)
   end
@@ -58,22 +48,7 @@ class StocksController < ApplicationController
     @product = Product.find_by(id: params[:product_id])
   end
 
-  def create_stock(stock)
-    Stock.transaction do
-      existing_stock = Stock.find_by(warehouse: stock.warehouse, product: stock.product)
-
-      if existing_stock
-        existing_stock.quantity += stock.quantity.to_i
-        existing_stock.save!
-      else
-        stock.save!
-      end
-    end
-
-    true
-    # moze zwracac walidacje z modelu?
-    # if user . save to zwracaj json z succes, a na else user.errors
-  rescue ActiveRecord::RecordInvalid
-    false
+  def invalid_warehouse_or_product
+    render json: { errors: 'Invalid warehouse or product ID.' }, status: :unprocessable_entity
   end
 end

@@ -23,6 +23,6 @@ class DispatchesController < ApplicationController
 
     render json: { message: 'Order dispatched and stock removed from the system.' }, status: :ok
   rescue ActiveRecord::RecordInvalid
-    render json: { errors: 'Error dispatching the order.' }, status: :unprocessable_entity
+    render json: order.errors, status: :unprocessable_entity
   end
 end
